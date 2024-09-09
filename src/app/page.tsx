@@ -1,9 +1,12 @@
-import Image from "next/image";
+'use client'
 
 import LandingPage from '../components/component/landingpage'
+import { CartProvider } from '@/components/component/shopping-cart-context';
 
 export default function Home() {
   return (
-    <LandingPage></LandingPage>
+    <CartProvider>
+      <LandingPage></LandingPage>
+    </CartProvider>
   );
 }

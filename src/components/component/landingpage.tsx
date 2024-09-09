@@ -1,54 +1,50 @@
-import Link from "next/link"
-import { Input } from "@/components/ui/input"
-import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink } from "@/components/ui/navigation-menu"
-import { StarsIcon } from "lucide-react"
+"use client";
+
+import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink } from "@/components/ui/navigation-menu";
+import { StarsIcon } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ShoppingBasket } from "@/components/ui/shopping-cart";
+import Image from 'next/image'
+
+interface Product {
+  id: string; // or number, depending on your actual data type
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+}
+
+interface Sections {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  data: Product[]; // Change here
+}
 
 export default function LandingPage() {
-  const sections = [
-    {
-      id: 1,
-      title: "Acme Prism Tee",
-      description: "A perfect blend of style and comfort for the modern individual.",
-      imageUrl: "/placeholder.svg",
-      linkText: "Shop Now",
-      linkHref: "#",
-    },
-    {
-      id: 2,
-      title: "Featured Products",
-      description: "Discover our latest collection of stylish and high-quality products.",
-      products: [
-        {
-          id: 1,
-          name: "Classic Leather Shoes",
-          description: "Elegant and comfortable",
-          price: "$59.99",
-          imageUrl: "/placeholder.svg",
-        },
-        {
-          id: 2,
-          name: "Designer Handbag",
-          description: "Fashion statement",
-          price: "$89.99",
-          imageUrl: "/placeholder.svg",
-        },
-        {
-          id: 3,
-          name: "Wireless Earbuds",
-          description: "Crystal clear audio",
-          price: "$69.99",
-          imageUrl: "/placeholder.svg",
-        },
-        {
-          id: 4,
-          name: "Vintage Pocket Watch",
-          description: "Antique charm",
-          price: "$79.99",
-          imageUrl: "/placeholder.svg",
-        },
-      ],
-    },
-  ];
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const response = await fetch('http://localhost:4000/api/products');
+        if (response.ok) {
+          const data = await response.json();
+          setProducts(data.sub);
+        } else {
+          console.error('Failed to fetch products');
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    }
+
+    fetchProducts();
+  }, []);
 
   return (
     <div className="flex flex-col min-h-dvh">
@@ -66,9 +62,9 @@ export default function LandingPage() {
           />
         </div>
         <NavigationMenu>
-          <NavigationMenuList>
+          <NavigationMenuList className='mr-4'>
             <NavigationMenuItem>
-              <NavigationMenuLink href="#">Home</NavigationMenuLink>
+              <NavigationMenuLink href="/">Home</NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuLink href="#">Shop</NavigationMenuLink>
@@ -80,11 +76,38 @@ export default function LandingPage() {
               <NavigationMenuLink href="#">Contact</NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>
+          <ShoppingBasket/>
         </NavigationMenu>
       </header>
       <main className="flex-2">
-        {sections.map((section) => (
-          <Section key={section.id} section={section} />
+        <section className="w-full pt-12 md:pt-24 lg:pt-32">
+          <div className="flex justify-center items-center">
+            <div className="container px-4 md:px-6 grid gap-8 lg:grid-cols-2 lg:gap-16">
+              <Image
+                src="/placeholder.svg"
+                width={800}
+                height={800}
+                alt="Product Image"
+                className="mx-auto aspect-square overflow-hidden rounded-xl object-cover"
+              />
+              <div className="flex flex-col items-start justify-center space-y-4">
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Acme Prism Tee</h1>
+                <p className="text-muted-foreground md:text-xl">
+                  A perfect blend of style and comfort for the modern individual.
+                </p>
+                <Link
+                  href="#"
+                  className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                  prefetch={false}
+                >
+                  Shop Now
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+        {products && products.map((section, index) => (
+          <Section key={index} section={section} />
         ))}
       </main>
       <footer className="flex justify-center items-center bg-muted p-6 md:py-12 w-full">
@@ -96,68 +119,48 @@ export default function LandingPage() {
   );
 }
 
-function Section({ section }) {
-  if (section.products) {
-    return (
-      <section className="flex justify-center items-center w-full py-12 md:py-24 lg:py-32">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
+function Section({ section }: { section: Sections }) {
+  return (
+    <section className="flex justify-center items-center w-full py-12 md:py-24 lg:py-32">
+      <div className="container px-4 md:px-6">
+        <div className="flex flex-col items-center justify-center space-y-4 text-center">
+          <div className="space-y-2">
+            <div>
               <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">{section.title}</h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 {section.description}
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
-            {section.products.map((product) => (
-              <div key={product.id} className="relative overflow-hidden transition-transform duration-300 ease-in-out rounded-lg shadow-lg group hover:shadow-xl hover:-translate-y-2">
-                <Link href="#" className="absolute inset-0 z-10" prefetch={false}>
-                  <span className="sr-only">View</span>
-                </Link>
-                <img
-                  src={product.imageUrl}
-                  alt={product.name}
-                  width={500}
-                  height={400}
-                  className="object-cover w-full h-64"
-                  style={{ aspectRatio: "500/400", objectFit: "cover" }}
-                />
-                <div className="p-4 bg-background">
-                  <h3 className="text-xl font-bold">{product.name}</h3>
-                  <p className="text-sm text-muted-foreground">{product.description}</p>
-                  <h4 className="text-lg font-semibold md:text-xl">{product.price}</h4>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
-      </section>
-    );
-  }
-
-  return (
-    <section className="flex justify-center items-center w-full pt-12 md:pt-24 lg:pt-32">
-      <div className="container px-4 md:px-6 grid gap-8 lg:grid-cols-2 lg:gap-16">
-        <img
-          src={section.imageUrl}
-          width={800}
-          height={800}
-          alt={section.title}
-          className="mx-auto aspect-square overflow-hidden rounded-xl object-cover"
-        />
-        <div className="flex flex-col items-start justify-center space-y-4">
-          <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">{section.title}</h1>
-          <p className="text-muted-foreground md:text-xl">
-            {section.description}
-          </p>
-          <Link
-            href={section.linkHref}
-            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-            prefetch={false}
-          >
-            {section.linkText}
-          </Link>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
+          {section.data.map((product) => (
+            <div
+              key={product.id}
+              className="relative overflow-hidden transition-transform duration-300 ease-in-out rounded-lg shadow-lg group hover:shadow-xl hover:-translate-y-2"
+            >
+              <Link
+                href={`/product/${product.id}`}
+                className="absolute inset-0 z-10"
+                prefetch={false}
+              >
+                <span className="sr-only">View {product.name}</span>
+              </Link>
+              <Image
+                src={product.imageUrl}
+                alt={product.name}
+                width={500}
+                height={400}
+                className="object-cover w-full h-64"
+                style={{ aspectRatio: "500/400", objectFit: "cover" }}
+              />
+              <div className="p-4 bg-background">
+                <h3 className="text-xl font-bold">{product.name.charAt(0).toUpperCase() + product.name.slice(1)}</h3>
+                <p className="text-sm text-muted-foreground">{product.description.charAt(0).toUpperCase() + product.description.slice(1)}</p>
+                <h4 className="text-lg font-semibold md:text-xl">€{product.price}</h4>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -204,10 +207,10 @@ function FooterLinks() {
   );
 }
 
-function SearchIcon(props) {
+function SearchIcon({ className }: { className?: string }) {
   return (
     <svg
-      {...props}
+      className={className}
       xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
