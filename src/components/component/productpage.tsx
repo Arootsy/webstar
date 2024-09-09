@@ -17,7 +17,7 @@ import { useStore } from 'zustand/react'
 
 // import { useCartStore } from '@/store/cartStore';
 
-const useCartStore = dynamic(() => import("@/store/cartStore"), { ssr: false });
+import { useCartStore } from '@/store/cartStore';
 
 interface ProductPageParams {
   params: {
@@ -27,7 +27,7 @@ interface ProductPageParams {
 
 export default function ProductPage({ params }: ProductPageParams) {
   const { id } = params;
-  const { addItem } = useCartStore();  // Use Zustand store for cart actions
+  const { addItem } = useCartStore();
 
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -48,6 +48,7 @@ export default function ProductPage({ params }: ProductPageParams) {
 
         const data = await response.json();
         setProduct(data);
+
       } catch (error: any) {
         setError(error.message);
       } finally {
@@ -73,8 +74,8 @@ export default function ProductPage({ params }: ProductPageParams) {
 
     setIsAdding(false);
     setShowAlert(true);
-    setSelectedSize(undefined);
-    setSelectedColor(undefined);
+    setSelectedSize('');
+    setSelectedColor('');
     
     setTimeout(() => setShowAlert(false), 3000);
   };

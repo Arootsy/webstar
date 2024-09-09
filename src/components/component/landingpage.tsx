@@ -9,7 +9,7 @@ import { ShoppingBasket } from "@/components/ui/shopping-cart";
 import Image from 'next/image'
 
 interface Product {
-  id: string; // or number, depending on your actual data type
+  id: string;
   name: string;
   description: string;
   price: number;
@@ -22,7 +22,7 @@ interface Sections {
   description: string;
   price: number;
   imageUrl: string;
-  data: Product[]; // Change here
+  data: Product[];
 }
 
 export default function LandingPage() {

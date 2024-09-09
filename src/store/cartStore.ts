@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 interface CartItem {
+  cartItemId: number;
   id: number;
   name: string;
   price: number;
@@ -9,24 +10,24 @@ interface CartItem {
 
 interface CartStore {
   cartItems: CartItem[];
-  addItem: (item: CartItem) => void;
-  removeItem: (id: number) => void;
+  addItem: (item: Omit<CartItem, 'cartItemId'>) => void;
+  removeItem: (cartItemId: number) => void;
   totalPrice: string;
   setTotalPrice: (price: string) => void;
 }
 
-// Corrected Zustand store
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       cartItems: [],
-      addItem: (item: CartItem) => {
-        const updatedCart = [...get().cartItems, item];
+      addItem: (item: Omit<CartItem, 'cartItemId'>) => {
+        const newItem = { ...item, cartItemId: Date.now() };
+        const updatedCart = [...get().cartItems, newItem];
         const total = updatedCart.reduce((sum, i) => sum + i.price, 0).toFixed(2);
         set({ cartItems: updatedCart, totalPrice: total });
       },
-      removeItem: (id: number) => {
-        const updatedCart = get().cartItems.filter((item) => item.id !== id);
+      removeItem: (cartItemId: number) => {
+        const updatedCart = get().cartItems.filter((item) => item.cartItemId !== cartItemId);
         const total = updatedCart.reduce((sum, i) => sum + i.price, 0).toFixed(2);
         set({ cartItems: updatedCart, totalPrice: total });
       },

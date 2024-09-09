@@ -1,5 +1,3 @@
-'use client';
-
 import { useCartStore } from '@/store/cartStore';
 import { ShoppingCart } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -14,7 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 
 interface ShoppingBasketProps {
-  className?: string; // Optional className prop
+  className?: string;
 }
 
 export function ShoppingBasket({ className }: ShoppingBasketProps) {
@@ -39,10 +37,10 @@ export function ShoppingBasket({ className }: ShoppingBasketProps) {
           <DropdownMenuLabel>Shopping Cart</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {cartItems.map(item => (
-            <DropdownMenuItem key={item.id} className="flex justify-between">
+            <DropdownMenuItem key={item.cartItemId} className="flex justify-between">
               <span>{item.name}</span>
               <span>€{item.price.toFixed(2)}</span>
-              <Button variant="ghost" size="sm" onClick={() => removeItem(item.id)}>
+              <Button variant="ghost" size="sm" onClick={() => removeItem(item.cartItemId)}>
                 Remove
               </Button>
             </DropdownMenuItem>
