@@ -11,6 +11,9 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { ShoppingBasket } from "@/components/ui/shopping-cart";
 import dynamic from "next/dynamic";
 import Image from 'next/image';
+import { useStore } from 'zustand/react'
+
+
 
 // import { useCartStore } from '@/store/cartStore';
 

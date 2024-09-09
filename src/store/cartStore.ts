@@ -15,41 +15,29 @@ interface CartStore {
   setTotalPrice: (price: string) => void;
 }
 
-const isBrowser = typeof window !== 'undefined';
-
-const loadCartFromLocalStorage = (): CartItem[] => {
-  if (!isBrowser) return [];
-  const savedCart = localStorage.getItem('cartItems');
-  return savedCart ? JSON.parse(savedCart) : [];
-};
-
-const loadTotalPriceFromLocalStorage = (): string => {
-  if (!isBrowser) return '0.00';
-  return localStorage.getItem('totalPrice') || '0.00';
-};
-
-export const useCartStore = create<CartStore>(
+// Corrected Zustand store
+export const useCartStore = create<CartStore>()(
   persist(
-    (set) => ({
-      cartItems: loadCartFromLocalStorage(),
-      addItem: (item: CartItem) => set((state) => {
-        const updatedCart = [...state.cartItems, item];
-        if (isBrowser) localStorage.setItem('cartItems', JSON.stringify(updatedCart));
-        return { cartItems: updatedCart };
-      }),
-      removeItem: (id: number) => set((state) => {
-        const updatedCart = state.cartItems.filter(item => item.id !== id);
-        if (isBrowser) localStorage.setItem('cartItems', JSON.stringify(updatedCart));
-        return { cartItems: updatedCart };
-      }),
-      totalPrice: loadTotalPriceFromLocalStorage(),
-      setTotalPrice: (price: string) => set(() => {
-        if (isBrowser) localStorage.setItem('totalPrice', price);
-        return { totalPrice: price };
-      }),
+    (set, get) => ({
+      cartItems: [],
+      addItem: (item: CartItem) => {
+        const updatedCart = [...get().cartItems, item];
+        const total = updatedCart.reduce((sum, i) => sum + i.price, 0).toFixed(2);
+        set({ cartItems: updatedCart, totalPrice: total });
+      },
+      removeItem: (id: number) => {
+        const updatedCart = get().cartItems.filter((item) => item.id !== id);
+        const total = updatedCart.reduce((sum, i) => sum + i.price, 0).toFixed(2);
+        set({ cartItems: updatedCart, totalPrice: total });
+      },
+      totalPrice: '0.00',
+      setTotalPrice: (price: string) => {
+        set({ totalPrice: price });
+      },
     }),
     {
-      name: 'cart-storage',
+      name: 'cart-storage', // name of the item in storage
+      getStorage: () => localStorage, // explicitly use localStorage
     }
   )
 );
